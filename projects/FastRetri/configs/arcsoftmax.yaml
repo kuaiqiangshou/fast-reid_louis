@@ -1,1 +1,170 @@
+CUDNN_BENCHMARK: true
+DATALOADER:
+  NUM_INSTANCE: 4
+  NUM_WORKERS: 4
+  SAMPLER_TRAIN: TrainingSampler
+  SET_WEIGHTS: []
+DATASETS:
+  COMBINEALL: false
+  NAMES: &id002
+  -market1501
+  TEST:
+   IMAGES: &id001
+   - ""
+   LABELS: *id001
+   NAMES: *id001
+   TESTS: *id002
+   TRAIN:
+     IMAGES:
+     - /data
+     LABELS:
+     - local_pahth.json
+     NAMES:
+     - NormalClasDataset
 
+INPUT:
+  
+  SIZE_TRAIN: [256, 256]
+  SIZE_TEST: [256, 256]
+
+  CROP:
+    ENABLED: True
+    SIZE: [224,224]
+    SCALE: [0.8, 1.2]
+    RATIO: [0.75, 1.33333]
+
+  FLIP:
+    ENABLED: True
+    HOR_PROB: 0.5
+    VER_PROB: 0.5
+
+  CJ:
+    ENABLED: true
+    BRIGHTNESS: 0.3
+    CONTRAST: 0.3
+    SATURATION: 0.1
+    PROB: 0.8
+    HUE: 0.1
+MODEL:
+  META_ARCHITECTURE: Baseline
+
+  BACKBONE:
+    ATT_DROP_RATE: 0.0
+    NAME: build_resnet_backbone
+    DEPTH: 101x
+    NORM: BN
+    DROP_PATH_RATIO: 0.1
+    DROP_RATIO: 0.0
+    LAST_STRIDE: 1
+    FEAT_DIM: 2048
+    PRETRAIN: True
+    PRETRAIN_PATH: ''
+    SIE_COE: 3.0
+    STRIDE_SIZE:
+    - 16
+    - 16
+    WITH_IBN: true
+    WITH_NL: false
+    WITH_SE: true
+  DEVICE: cuda
+  PREEZE_LAYERS:
+  - backbone
+
+  HEADS:
+    NAME: EmbeddingHead
+    NORM: BN
+    WITH_BNNECK: True
+    NECK_FEAT: after
+    EMBEDDING_DIM: 0
+    POOL_LAYER: GeneralizedMeanPooling
+    CLS_LAYER: Linear
+    ARC_K: 1
+    CLS_LAYER: ArcSoftmax
+    MARGIN: 0.15
+    MATCH_DIM: 128
+    NUM_CLASS: 1778289
+    PART_DIM: 512
+    PART_NUM: 3
+    RETURN_EMBEDDING: false
+    SCALE: 20.35
+    SPLIT_DIRECTION: w
+    
+  LOSSES:  
+    CE:
+      ALPHA: 0.2
+      EPSILON: 0.0
+      SCALE: 1.0
+    NAME: ("CrossEntropyLoss",)
+
+  PCB:
+    EMBEDDING_DIM: 512
+    HEAD:
+      EMBEDDING_DIM: 512
+      FULL_DIM: 2048
+      PART_DIM: 512
+      PART_NUM: 3
+  PIXEL_MEAN:
+   - 123.675
+   - 116.208
+   - 103.53
+  PIXEL_STD:
+   - 58.395
+   - 57.375
+  QUEUE_SIZE: 8192
+  WEIGHTS: ''
+OUTPUT_DIR: out/path/
+
+DATALOADER:
+  SAMPLER_TRAIN: TrainingSampler
+  NUM_WORKERS: 8
+
+SOLVER:
+  MAX_EPOCH: 100
+  AMP:
+    ENABLED: True
+
+  OPT: SGD
+  SCHED: CosineAnnealingLR
+
+  BASE_LR: 0.003
+  MOMENTUM: 0.99
+  NESTEROV: True
+
+  BIAS_LR_FACTOR: 1.
+  WEIGHT_DECAY: 0.0005
+  WEIGHT_DECAY_BIAS: 0.
+  IMS_PER_BATCH: 128
+
+  ETA_MIN_LR: 0.00003
+
+  CHECKPOINT_PERIOD: 10
+
+  CLIP_GRADIENTS:
+    ENABLED: false
+
+  DELAY_EPOCH: 0
+  ETA_MIN_LR: 3.0e-06
+  FREEZE_ITERS: 0
+  GAMMA: 0.1
+  HEADS_LR_FACTOR: 1.0
+  MAX_EPOCH: 20
+  MOMENTUM: 0.95
+  NESTEROV: false
+  SAVE_BEST_ONLY: false
+  SCHED: MultiStepLR
+  STEPS:
+    - 5
+    - 10
+    - 15
+  WARMUP_FACTOR: 0.1
+  WARMUP_ITERS: 0
+  WARMUP_METHOD: linear
+  WEIGHT_DECAY: 0.00005
+  WEIGHT_DECAY_BIAS: 0.0
+  WEIGHT_DECAY_NORM: 0.0005
+  
+TEST:
+  EVAL_PERIOD: 10
+  IMS_PER_BATCH: 256
+
+CUDNN_BENCHMARK: True
